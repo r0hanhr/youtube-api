@@ -1,25 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useEffect, useState } from "react";
+import SearchComponent from "./Components/SearchComponent";
+import VideoDetails from "./Components/VideoDetails";
+import VideoList from "./Components/VideoList";
+import Youtube from "./Youtube";
 
-function App() {
+const App = () => {
+  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  let onTermSubmit = async term => {
+    let response = await Youtube.get("/search", {
+      params: { q: term },
+    });
+    setVideos(response.data.items);
+    setSelectedVideo((response.data.items = 0));
+  };
+  let onSelectedVideo = video => {
+    setSelectedVideo(video);
+  };
+  useEffect(() => {
+    onTermSubmit("reactjs");
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <section>
+        <header>
+          <SearchComponent onTermSubmit={onTermSubmit} />
+        </header>
+        <main className="container">
+          <div className="row">
+            <div className="col-md-8">
+              <VideoDetails video={selectedVideo} />
+            </div>
+            <div className="col-md-4">
+              <VideoList videos={videos} onSelectedVideo={onSelectedVideo} />
+            </div>
+          </div>
+        </main>
+      </section>
+    </Fragment>
   );
-}
+};
 
 export default App;
